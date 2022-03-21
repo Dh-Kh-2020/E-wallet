@@ -1,8 +1,6 @@
 <?php
 
 require_once('connectDB.php');
-// include('wallet.php');
-// $db = new DBConnection();
 
 class CRUD extends DBConnection{
 
@@ -33,36 +31,12 @@ class CRUD extends DBConnection{
 
     function select($post){
         $un     = $this->conn->real_escape_string($_POST['username']);
-        // $em     = $this->conn->real_escape_string($_POST['email']);
         $psw    = $this->conn->real_escape_string($_POST['password']);
-        // $md5 = md5($psw);
     
         $query = "SELECT * FROM users WHERE username = '".$un."' AND password = '".md5($psw)."'";
         $result = mysqli_query($this->conn, $query);
         $rows = mysqli_fetch_assoc($result);
 
-    //     if ($result) {
-    //         $this->wallet = mysqli_fetch_assoc($result);
-
-    //         $_SESSION['wallet'] = [
-    //             "loggedin"  => true,
-    //             "uid"       => $wallet['uid'],
-    //             "wid"       => $wallet['wind'],
-    //             "email"     => stripslashes($_POST['email']),
-    //             "password"  => stripslashes($_POST['password']),
-
-    //         ];
-            
-    //         header("location: dashboard.php");
-    //         exit;
-    //     // }
-    //     } else {
-    //     echo "<div class='errors'>
-    //             <p>Incorrect email/password.</p>
-    //             <p>".$rows."</p>
-    //         </div>";
-    // }
-        
         return $rows;
     }
 }

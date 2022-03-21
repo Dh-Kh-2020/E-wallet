@@ -4,25 +4,19 @@ require_once('connectDB.php');
 include_once('crud.php');
 
 class Wallets extends DBConnection{
-    private $wid;
     private $uid;
     private $balance;
     private $currency;
 
-    function __construct($uid){
+    function __construct(){
         parent::__construct();
         
-        // echo "add to wallet succeed";
-        $this->uid = $uid;
-        // $this->wid = bin2hex(random_bytes(4));
         $this->balance = 0;
         $this->currency = 'YR';
-
-        $this->createWallet();
     }
 
-    function createWallet(){
-        // if(){
+    function createWallet($uid){
+            $this->uid = $uid;
             $query = "INSERT INTO wallet VALUES (null, '".$this->uid."', '".$this->balance."', '".$this->currency."')";
             if (mysqli_query($this->conn, $query)){
                 $_SESSION['wallet'] = [
@@ -43,13 +37,41 @@ class Wallets extends DBConnection{
     }
 
     function setbalance($post){
-        $bl = $this->conn->real_escape_string($_POST['mybalance']);
-        $cr = $this->conn->real_escape_string($_POST['myCurrency']);
+        $user = $_POST['userid'];
+        $wQuery = mysqli_query($this->conn, "SELECT * FROM wallet WHERE uid = '".$user."'");
         
-        
-        $uQuery = mysqli_query($this->conn, "SELECT uid FROM wallet WHERE balance='".$bl."', currency='".$cr."'");
+        $rows= mysqli_fetch_assoc($wQuery);
+        $wid = $rows['wid'];
+    
+        $query = mysqli_query($this->conn, "UPDATE wallet SET balance = '".$_POST['mybalance']."', currency = '".$_POST['myCurrency']."' WHERE wid = '".$wid."'");
+    }
 
-        $uid =  mysqli_fetch_assoc($uQuery);
-        $query = mysqli_query($this->conn, "UPDATE wallet SET balance = '".$bl."', currency = '".$cr."' WHERE uid = '".$uid['uid']."'");
+    function depositbalance($post){
+        $user = $_POST['depuid'];
+        $wQuery = mysqli_query($this->conn, "SELECT * FROM wallet WHERE uid = '".$user."'");
+        
+        $rows= mysqli_fetch_assoc($wQuery);
+        $wid = $rows['wid'];
+        $totalbl = intval($rows['balance']) + intval($_POST['depbalance']);
+    
+        $query = mysqli_query($this->conn, "UPDATE wallet SET balance = '".$totalbl."' WHERE wid = '".$wid."'");
+    }
+
+    function withdrawbalance($post){
+        $user = $_POST['withuid'];
+        $wQuery = mysqli_query($this->conn, "SELECT * FROM wallet WHERE uid = '".$user."'");
+        
+        $rows= mysqli_fetch_assoc($wQuery);
+        $wid = $rows['wid'];
+        $totalbl = intval($rows['balance']) - intval($_POST['withbalance']);
+        if($totalbl < 0){
+            echo "
+                <div class='container m-auto mt-5 border shadow' style='width: 50%'>
+                    <p class='m-auto p-5 text-danger'>You don't have enough balance in your wallet</p>
+                </div>
+            ";
+        }
+    
+        $query = mysqli_query($this->conn, "UPDATE wallet SET balance = '".$totalbl."' WHERE wid = '".$wid."'");
     }
 }

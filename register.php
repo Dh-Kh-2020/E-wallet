@@ -112,7 +112,8 @@
     if($_POST){
         if ($_POST['password'] === $_POST['psw_conf']){
             $crud->insert($_POST);
-            // $wallet = new Wallets($_POST['uid']);
+            $wallet = new Wallets();
+            $wallet->createWallet($_POST['uid']);
 
             header("Location: login.php"); 
             exit();
